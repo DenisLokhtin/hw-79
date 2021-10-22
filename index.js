@@ -14,7 +14,7 @@ app.use('/', locations);
 app.use('/', categories);
 app.use('/', items);
 app.use(upload.array());
-const port = 8000;
+const port = 8001;
 
 mysqlDb.connect().catch(e => console.log(e));
 app.listen(port, () => {

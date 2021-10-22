@@ -19,25 +19,25 @@ router.get('/items/:id', async (req, res) => {
     res.send(resources[0]);
 });
 
-
-router.post('/items', upload.single('image'), async (req, res) => {
+// postman выдаёт ошибку, curl отправляет
+// curl -X POST -F 'file=@sample.png' -F'locations_id=2' -F'categories_id=2' -F 'name=something' -F 'description=something' http://127.0.0.1:8000/items
+router.post('/items', upload.single('file'), async (req, res) => {
     const body = {
         name: req.body.name,
         description: req.body.description,
-        locations_id: req.body.locations_id,
-        categories_id: req.body.categories_id,
+        locations_id: parseInt(req.body.locations_id),
+        categories_id: parseInt(req.body.categories_id),
     };
 
-    if (req.image) {
-        body.image = req.image.filename;
-    }
-    ;
+    if (req.file) {
+        body.file = req.file.filename;
+    };
 
-    console.log(req.body);
+    console.log(req.file);
 
     const newResources = await mysqlDb.getConnection().query(
         'INSERT INTO items (locations_id, categories_id, name, description, image) values (?, ?, ?, ?, ?)',
-        [body.locations_id, body.categories_id, body.name, body.description, body.image]);
+        [body.locations_id, body.categories_id, body.name, body.description, body.file]);
 
     res.send({
         ...body,
@@ -45,7 +45,7 @@ router.post('/items', upload.single('image'), async (req, res) => {
     });
 });
 
-router.put('/items/:id', upload.single('image'), async (req, res) => {
+router.put('/items/:id', upload.single('file'), async (req, res) => {
     const body = {
         name: req.body.name,
         description: req.body.description,
@@ -53,8 +53,8 @@ router.put('/items/:id', upload.single('image'), async (req, res) => {
         categories_id: req.body.categories_id,
     };
 
-    if (req.image) {
-        body.image = req.image.filename;
+    if (req.file) {
+        body.image = req.file.filename;
     }
     ;
 

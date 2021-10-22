@@ -1,25 +1,7 @@
 const express = require('express');
-const multer = require('multer');
-const path = require('path');
-const config = require('../config')
 const mysqlDb = require('../mysqlDb')
 
-const {nanoid} = require("nanoid");
-const ID = nanoid();
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, config.uploadPath);
-    },
-    filename: (req, file, cb) => {
-        cb(null, ID + path.extname(file.originalname));
-    },
-});
-
-const upload = multer({storage});
-
 const router = express.Router();
-
 
 router.get('/categories', async (req, res) => {
     const [resources] = await mysqlDb.getConnection().query(
@@ -36,7 +18,7 @@ router.get('/categories/:id', async (req, res) => {
 });
 
 
-router.post('/categories', upload.single('file'), async (req, res) => {
+router.post('/categories', async (req, res) => {
     const body = {
         name: req.body.name,
         description: req.body.description,
@@ -53,7 +35,7 @@ router.post('/categories', upload.single('file'), async (req, res) => {
     return
 });
 
-router.put('/categories/:id', upload.single('file'), async (req, res) => {
+router.put('/categories/:id', async (req, res) => {
     const body = {
         name: req.body.name,
         description: req.body.description,
