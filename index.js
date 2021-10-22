@@ -1,6 +1,7 @@
 const express = require('express');
 const message = require('./app/app');
-const fileDb = require('./fileDb');
+// const fileDb = require('./fileDb');
+const mysqlDb = require('./mysqlDb');
 const cors = require('cors');
 
 const app = express();
@@ -11,7 +12,8 @@ const port = 8000;
 
 app.use('/message', message);
 
-fileDb.init();
+// fileDb.init();
+mysqlDb.connect().catch(e => console.log(e));
 app.listen(port, () => {
     console.log(`Server started on ${port} port!`);
 });
