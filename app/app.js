@@ -22,49 +22,66 @@ const router = express.Router();
 
 
 router.get('/:name', async (req, res) => {
-    if (req.query.datetime === undefined) {
+    if (req.params.name === 'categories' || req.params.name === 'locations') {
         const [resources] = await mysqlDb.getConnection().query(
-            'SELECT * FROM ??',
+            'SELECT id, name FROM ??',
             [req.params.name]);
         res.send(resources);
         return
+    } else {
+        const [resources] = await mysqlDb.getConnection().query(
+            'SELECT id, locations_id, categories_id, name FROM ??',
+            [req.params.name]);
+        res.send(resources);
     }
 });
 
 router.get('/:name/:id', async (req, res) => {
-    if (req.query.datetime === undefined) {
-        const [resources] = await mysqlDb.getConnection().query(
-            `SELECT * FROM ?? where id = ?`,
-            [req.params.name, req.params.id]);
-        res.send(resources[0]);
-        return
-    }
+    const [resources] = await mysqlDb.getConnection().query(
+        `SELECT * FROM ?? where id = ?`,
+        [req.params.name, req.params.id]);
+    res.send(resources[0]);
 });
 
 
-
-router.post('/', upload.single('file'), async (req, res) => {
-    if (req.body.message !== '') {
-
+router.post('/:name', upload.single('file'), async (req, res) => {
+    if (req.params.name === 'categories' || req.params.name === 'locations') {
         const body = {
-            author: req.body.author,
-            message: req.body.message,
-            id: ID,
+            name: req.body.name,
+            description: req.body.description,
+        };
+
+        const newResources = await mysqlDb.getConnection().query(
+            'INSERT INTO ?? (name, description) values (?, ?)',
+            [req.params.name, body.name, body.description]);
+
+        res.send({
+            ...body,
+            id: newResources.insertId
+        });
+        return
+    } else {
+        const body = {
+            name: req.body.name,
+            description: req.body.description,
+            locations_id: req.body.locations_id,
+            categories_id: req.body.categories_id,
         };
 
         if (req.file) {
             body.file = req.file.filename;
+        } else {
+            body.file = null;
         }
 
         const newResources = await mysqlDb.getConnection().query(
-            'INSERT INTO ?? ()',
-            [req.params.name]);
+            'INSERT INTO ?? (locations_id, categories_id, name, description, image) values (?, ?, ?, ?, ?)',
+            [req.params.name, body.locations_id, body.categories_id, body.name, body.description, body.file]);
 
-        fileDB.addItem(body);
-        res.setHeader('content-type', 'application/JSON');
-        res.send(JSON.stringify(body));
-    } else {
-        res.status(400).send(JSON.stringify({"error": "Message must be present in the request"}))
+        res.send({
+            ...body,
+            id: newResources.insertId
+        });
     }
 });
 
