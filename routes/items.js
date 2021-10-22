@@ -19,8 +19,6 @@ router.get('/items/:id', async (req, res) => {
     res.send(resources[0]);
 });
 
-// postman выдаёт ошибку, curl отправляет
-// curl -X POST -F 'file=@sample.png' -F'locations_id=2' -F'categories_id=2' -F 'name=something' -F 'description=something' http://127.0.0.1:8000/items
 router.post('/items', upload.single('file'), async (req, res) => {
     const body = {
         name: req.body.name,
