@@ -70,9 +70,7 @@ router.post('/:name', upload.single('file'), async (req, res) => {
 
         if (req.file) {
             body.file = req.file.filename;
-        } else {
-            body.file = null;
-        }
+        };
 
         const newResources = await mysqlDb.getConnection().query(
             'INSERT INTO ?? (locations_id, categories_id, name, description, image) values (?, ?, ?, ?, ?)',
@@ -81,6 +79,43 @@ router.post('/:name', upload.single('file'), async (req, res) => {
         res.send({
             ...body,
             id: newResources.insertId
+        });
+    }
+});
+
+router.put('/:name/:id', upload.single('file'), async (req, res) => {
+    if (req.params.name === 'categories' || req.params.name === 'locations') {
+        const body = {
+            name: req.body.name,
+            description: req.body.description,
+        };
+
+        const updateResources = await mysqlDb.getConnection().query(
+            'UPDATE ?? SET ? WHERE id = ?',
+            [req.params.name, {...body}, req.params.id]);
+
+        res.send({
+            ...body
+        });
+        return
+    } else {
+        const body = {
+            name: req.body.name,
+            description: req.body.description,
+            locations_id: req.body.locations_id,
+            categories_id: req.body.categories_id,
+        };
+
+        if (req.file) {
+            body.file = req.file.filename;
+        };
+
+        const updateResources = await mysqlDb.getConnection().query(
+            'UPDATE ?? SET ? WHERE id = ?',
+            [req.params.name, {...body}, req.params.id]);
+
+        res.send({
+            ...body
         });
     }
 });
