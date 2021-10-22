@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.static('public'));
 const port = 8000;
 
-app.use('/message', message);
+app.use('/', message);
 
 // fileDb.init();
 mysqlDb.connect().catch(e => console.log(e));
