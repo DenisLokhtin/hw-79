@@ -120,4 +120,11 @@ router.put('/:name/:id', upload.single('file'), async (req, res) => {
     }
 });
 
+router.delete('/:name/:id', async (req, res) => {
+    const [resources] = await mysqlDb.getConnection().query(
+        `DELETE FROM ?? where id = ?`,
+        [req.params.name, req.params.id]);
+    res.send(resources[0]);
+});
+
 module.exports = router;
